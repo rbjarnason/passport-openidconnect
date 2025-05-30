@@ -125,6 +125,30 @@ app.get('/cb',
   });
 ```
 
+#### Multiple Concurrent States
+
+The strategy stores a unique state value in the session when initiating an
+authentication request.  Applications that need to maintain more than one
+outstanding request (for example, across multiple browser tabs) can use a
+`MultiSessionStore`:
+
+```js
+var MultiSessionStore = require('passport-openidconnect/state/multi-session');
+
+passport.use(new OpenIDConnectStrategy({
+  issuer: 'https://server.example.com',
+  authorizationURL: 'https://server.example.com/authorize',
+  tokenURL: 'https://server.example.com/token',
+  clientID: process.env['CLIENT_ID'],
+  callbackURL: 'https://client.example.org/cb',
+  store: new MultiSessionStore({ key: 'openidconnect:server.example.com' })
+}, verify));
+```
+
+`MultiSessionStore` keeps states in `req.session[options.key].states`, keyed by
+the state handle.  When a `state` value is supplied to `authenticate()`, that
+value will be used as the handle.
+
 ## Examples
 
 * [todos-express-openidconnect](https://github.com/passport/todos-express-openidconnect)
